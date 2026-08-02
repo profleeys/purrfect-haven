@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import {
+  lookupReservations,
+  type ReservationLookupItem,
+} from "@/lib/reservations.functions";
 
 import heroImg from "@/assets/hero.jpg";
 import catLatte from "@/assets/cat-latte.jpg";
