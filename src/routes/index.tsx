@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import {
+  lookupReservations,
+  type ReservationLookupItem,
+} from "@/lib/reservations.functions";
 
 import heroImg from "@/assets/hero.jpg";
 import catLatte from "@/assets/cat-latte.jpg";
@@ -90,6 +95,12 @@ const emptyForm = {
   note: "",
 };
 
+const statusLabel: Record<string, string> = {
+  pending: "待確認",
+  confirmed: "已確認",
+  cancelled: "已取消",
+};
+
 function Index() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -136,6 +147,31 @@ function Index() {
     setSent(true);
     toast.success("預約已送出，我們會盡快與您聯繫！");
   };
+
+  const [lookupOpen, setLookupOpen] = useState(false);
+  const [lookupForm, setLookupForm] = useState({ name: "", phone: "" });
+  const [looking, setLooking] = useState(false);
+  const [results, setResults] = useState<ReservationLookupItem[] | null>(null);
+  const runLookup = useServerFn(lookupReservations);
+
+  const handleLookup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (looking) return;
+    setLooking(true);
+    try {
+      const rows = await runLookup({
+        data: { name: lookupForm.name.trim(), phone: lookupForm.phone.trim() },
+      });
+      setResults(rows);
+    } catch (err) {
+      console.error(err);
+      toast.error("查詢失敗，請稍後再試。");
+    } finally {
+      setLooking(false);
+    }
+  };
+
+
 
 
   return (
@@ -407,7 +443,87 @@ function Index() {
             </div>
           </form>
 
+          <div className="mt-8 text-center">
+            <button
+              type="button"
+              onClick={() => setLookupOpen((v) => !v)}
+              className="rounded-full border border-border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary"
+            >
+              {lookupOpen ? "收起查詢" : "查詢我的預約"}
+            </button>
+          </div>
+
+          {lookupOpen && (
+            <div className="surface-card mt-6 px-7 py-7">
+              <p className="text-sm text-muted-foreground">
+                請輸入預約時填寫的姓名與電話，即可確認預約是否成功。
+              </p>
+              <form className="mt-5 grid gap-5 sm:grid-cols-2" onSubmit={handleLookup}>
+                <Field label="姓名">
+                  <input
+                    required
+                    maxLength={50}
+                    className={inputCls}
+                    placeholder="王小貓"
+                    value={lookupForm.name}
+                    onChange={(e) =>
+                      setLookupForm((p) => ({ ...p, name: e.target.value }))
+                    }
+                  />
+                </Field>
+                <Field label="聯絡電話">
+                  <input
+                    required
+                    type="tel"
+                    pattern="[0-9+\-()\s]{6,30}"
+                    title="請輸入有效的電話號碼"
+                    className={inputCls}
+                    placeholder="0912-345-678"
+                    value={lookupForm.phone}
+                    onChange={(e) =>
+                      setLookupForm((p) => ({ ...p, phone: e.target.value }))
+                    }
+                  />
+                </Field>
+                <div className="sm:col-span-2">
+                  <button
+                    type="submit"
+                    disabled={looking}
+                    className="btn-warm btn-warm-hover w-full disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {looking ? "查詢中⋯⋯" : "查詢預約"}
+                  </button>
+                </div>
+              </form>
+
+              {results !== null && results.length === 0 && (
+                <p className="mt-6 rounded-2xl bg-secondary px-4 py-3 text-center text-sm text-secondary-foreground">
+                  找不到符合的預約，請確認姓名與電話是否與當初填寫的一致。
+                </p>
+              )}
+
+              {results !== null && results.length > 0 && (
+                <ul className="mt-6 space-y-3">
+                  {results.map((r) => (
+                    <li
+                      key={r.id}
+                      className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-border px-5 py-4 text-sm"
+                    >
+                      <span className="font-semibold">{r.visit_date}</span>
+                      <span>{r.time_slot}</span>
+                      <span className="text-muted-foreground">{r.party_size} 位</span>
+                      <span className="grow" />
+                      <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+                        {statusLabel[r.status] ?? r.status}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </section>
+
       </main>
 
       <footer className="bg-wood py-14 text-cream">
