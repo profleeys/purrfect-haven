@@ -4,6 +4,7 @@ import { useState } from "react";
 import heroImg from "@/assets/hero.jpg";
 import catLatte from "@/assets/cat-latte.jpg";
 import catPudding from "@/assets/cat-pudding.jpg";
+import catMochi from "@/assets/cat-mochi.jpg";
 import menuImg from "@/assets/menu.jpg";
 
 export const Route = createFileRoute("/")({
@@ -40,7 +41,14 @@ const cats = [
     tag: "好奇探險家",
     desc: "好奇心旺盛的探險家，總在追逐雷射筆。全店最會跑酷的小小身影。",
   },
+  {
+    name: "麻糬",
+    img: catMochi,
+    tag: "慵懶睡神",
+    desc: "全店最會睡的麻糬，最愛窩在陽光灑進來的窗邊軟墊上。走路慢慢的，但只要聽到零食袋聲音就會秒醒。",
+  },
 ];
+
 
 const menu = [
   { group: "咖啡", items: [["手沖單品咖啡", "180"], ["貓爪拿鐵", "160"], ["黑糖燕麥拿鐵", "170"]] },
@@ -151,7 +159,7 @@ function Index() {
               <p className="text-sm tracking-[0.3em] text-accent-foreground/70">OUR CATS</p>
               <h2 className="mt-3 text-2xl font-bold md:text-3xl">貓咪成員</h2>
             </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-2">
+            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {cats.map((cat) => (
                 <article key={cat.name} className="surface-card overflow-hidden">
                   <img
