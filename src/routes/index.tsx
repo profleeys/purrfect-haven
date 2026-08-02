@@ -4,6 +4,7 @@ import { useState } from "react";
 import heroImg from "@/assets/hero.jpg";
 import catLatte from "@/assets/cat-latte.jpg";
 import catPudding from "@/assets/cat-pudding.jpg";
+import catMochi from "@/assets/cat-mochi.jpg";
 import menuImg from "@/assets/menu.jpg";
 
 export const Route = createFileRoute("/")({
