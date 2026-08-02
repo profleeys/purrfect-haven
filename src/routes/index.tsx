@@ -159,7 +159,7 @@ function Index() {
               <p className="text-sm tracking-[0.3em] text-accent-foreground/70">OUR CATS</p>
               <h2 className="mt-3 text-2xl font-bold md:text-3xl">貓咪成員</h2>
             </div>
-            <div className="mt-12 grid gap-8 md:grid-cols-2">
+            <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {cats.map((cat) => (
                 <article key={cat.name} className="surface-card overflow-hidden">
                   <img
