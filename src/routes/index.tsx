@@ -76,8 +76,64 @@ const faqs = [
   { q: "需要預約嗎？", a: "強烈建議預約。假日時段常常客滿，線上預約可保留您的座位。" },
 ];
 
+const timeSlots = ["11:00 - 13:00", "13:30 - 15:30", "16:00 - 18:00", "18:30 - 20:30"];
+
+const emptyForm = {
+  name: "",
+  phone: "",
+  visitDate: "",
+  timeSlot: "",
+  partySize: "2",
+  note: "",
+};
+
 function Index() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const setField = (key: keyof typeof emptyForm, value: string) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+
+    const size = Number(form.partySize);
+    if (!Number.isInteger(size) || size < 1 || size > 8) {
+      toast.error("人數請填 1 至 8 人。");
+      return;
+    }
+    if (form.visitDate < today) {
+      toast.error("來店日期不能早於今天。");
+      return;
+    }
+
+    setSubmitting(true);
+    setSent(false);
+    const { error } = await supabase.from("reservations").insert({
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      visit_date: form.visitDate,
+      time_slot: form.timeSlot,
+      party_size: size,
+      note: form.note.trim() || null,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      console.error(error);
+      toast.error("預約送出失敗，請稍後再試或來電預約。");
+      return;
+    }
+
+    setForm(emptyForm);
+    setSent(true);
+    toast.success("預約已送出，我們會盡快與您聯繫！");
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
