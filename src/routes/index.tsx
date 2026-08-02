@@ -95,6 +95,12 @@ const emptyForm = {
   note: "",
 };
 
+const statusLabel: Record<string, string> = {
+  pending: "待確認",
+  confirmed: "已確認",
+  cancelled: "已取消",
+};
+
 function Index() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
