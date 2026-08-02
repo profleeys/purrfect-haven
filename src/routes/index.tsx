@@ -142,6 +142,31 @@ function Index() {
     toast.success("預約已送出，我們會盡快與您聯繫！");
   };
 
+  const [lookupOpen, setLookupOpen] = useState(false);
+  const [lookupForm, setLookupForm] = useState({ name: "", phone: "" });
+  const [looking, setLooking] = useState(false);
+  const [results, setResults] = useState<ReservationLookupItem[] | null>(null);
+  const runLookup = useServerFn(lookupReservations);
+
+  const handleLookup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (looking) return;
+    setLooking(true);
+    try {
+      const rows = await runLookup({
+        data: { name: lookupForm.name.trim(), phone: lookupForm.phone.trim() },
+      });
+      setResults(rows);
+    } catch (err) {
+      console.error(err);
+      toast.error("查詢失敗，請稍後再試。");
+    } finally {
+      setLooking(false);
+    }
+  };
+
+
+
 
   return (
     <div className="min-h-screen bg-background">
