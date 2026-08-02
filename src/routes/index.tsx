@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
+
+import { supabase } from "@/integrations/supabase/client";
 
 import heroImg from "@/assets/hero.jpg";
 import catLatte from "@/assets/cat-latte.jpg";
@@ -76,8 +79,64 @@ const faqs = [
   { q: "需要預約嗎？", a: "強烈建議預約。假日時段常常客滿，線上預約可保留您的座位。" },
 ];
 
+const timeSlots = ["11:00 - 13:00", "13:30 - 15:30", "16:00 - 18:00", "18:30 - 20:30"];
+
+const emptyForm = {
+  name: "",
+  phone: "",
+  visitDate: "",
+  timeSlot: "",
+  partySize: "2",
+  note: "",
+};
+
 function Index() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const setField = (key: keyof typeof emptyForm, value: string) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+
+    const size = Number(form.partySize);
+    if (!Number.isInteger(size) || size < 1 || size > 8) {
+      toast.error("人數請填 1 至 8 人。");
+      return;
+    }
+    if (form.visitDate < today) {
+      toast.error("來店日期不能早於今天。");
+      return;
+    }
+
+    setSubmitting(true);
+    setSent(false);
+    const { error } = await supabase.from("reservations").insert({
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      visit_date: form.visitDate,
+      time_slot: form.timeSlot,
+      party_size: size,
+      note: form.note.trim() || null,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      console.error(error);
+      toast.error("預約送出失敗，請稍後再試或來電預約。");
+      return;
+    }
+
+    setForm(emptyForm);
+    setSent(true);
+    toast.success("預約已送出，我們會盡快與您聯繫！");
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -263,40 +322,82 @@ function Index() {
 
           <form
             className="surface-card mt-10 grid gap-5 px-7 py-8 sm:grid-cols-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSent(true);
-            }}
+            onSubmit={handleSubmit}
           >
             <Field label="姓名">
-              <input required className={inputCls} placeholder="王小貓" />
+              <input
+                required
+                maxLength={50}
+                className={inputCls}
+                placeholder="王小貓"
+                value={form.name}
+                onChange={(e) => setField("name", e.target.value)}
+              />
             </Field>
             <Field label="聯絡電話">
-              <input required type="tel" className={inputCls} placeholder="0912-345-678" />
+              <input
+                required
+                type="tel"
+                pattern="[0-9+\-()\s]{6,30}"
+                title="請輸入有效的電話號碼"
+                className={inputCls}
+                placeholder="0912-345-678"
+                value={form.phone}
+                onChange={(e) => setField("phone", e.target.value)}
+              />
             </Field>
             <Field label="來店日期">
-              <input required type="date" className={inputCls} />
+              <input
+                required
+                type="date"
+                min={today}
+                className={inputCls}
+                value={form.visitDate}
+                onChange={(e) => setField("visitDate", e.target.value)}
+              />
             </Field>
             <Field label="時段">
-              <select required className={inputCls} defaultValue="">
+              <select
+                required
+                className={inputCls}
+                value={form.timeSlot}
+                onChange={(e) => setField("timeSlot", e.target.value)}
+              >
                 <option value="" disabled>
                   請選擇
                 </option>
-                <option>11:00 - 13:00</option>
-                <option>13:30 - 15:30</option>
-                <option>16:00 - 18:00</option>
-                <option>18:30 - 20:30</option>
+                {timeSlots.map((slot) => (
+                  <option key={slot}>{slot}</option>
+                ))}
               </select>
             </Field>
             <Field label="人數">
-              <input required type="number" min={1} max={8} defaultValue={2} className={inputCls} />
+              <input
+                required
+                type="number"
+                min={1}
+                max={8}
+                className={inputCls}
+                value={form.partySize}
+                onChange={(e) => setField("partySize", e.target.value)}
+              />
             </Field>
             <Field label="備註（選填）">
-              <input className={inputCls} placeholder="想坐窗邊、慶生⋯⋯" />
+              <input
+                className={inputCls}
+                maxLength={300}
+                placeholder="想坐窗邊、慶生⋯⋯"
+                value={form.note}
+                onChange={(e) => setField("note", e.target.value)}
+              />
             </Field>
             <div className="sm:col-span-2">
-              <button type="submit" className="btn-warm btn-warm-hover w-full">
-                送出預約
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-warm btn-warm-hover w-full disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting ? "送出中⋯⋯" : "送出預約"}
               </button>
               {sent && (
                 <p className="mt-4 rounded-2xl bg-secondary px-4 py-3 text-center text-sm text-secondary-foreground">
@@ -305,6 +406,7 @@ function Index() {
               )}
             </div>
           </form>
+
         </section>
       </main>
 
