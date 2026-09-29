@@ -229,7 +229,7 @@ function Index() {
           <p className="text-sm tracking-[0.3em] text-accent-foreground/70">ABOUT US</p>
           <h2 className="mt-3 text-2xl font-bold md:text-3xl">關於我們</h2>
           <p className="mt-6 text-base leading-loose text-muted-foreground md:text-lg">
-            「貓癒所」不僅是一家咖啡廳，更是人與貓咪建立深刻連結的橋樑。
+            「貓癒所」不僅單是一家咖啡廳，更是人與貓咪建立深刻連結的橋樑。
             <br className="hidden md:block" />
             我們致力於提供一個舒適、乾淨的環境，讓每一位客人都能在這裡找到片刻的寧靜與快樂。
           </p>
