@@ -209,7 +209,7 @@ function Index() {
             <h1 className="mt-4 max-w-3xl font-display text-3xl leading-snug font-bold text-cream md:text-5xl md:leading-tight">
               歡迎來到「貓癒所」，
               <br />
-              一個讓你被貓咪療癒的溫暖角落。
+              一個讓你被貓咪療癒的溫暖角落
             </h1>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#booking" className="btn-warm btn-warm-hover">
