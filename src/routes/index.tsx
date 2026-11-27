@@ -207,7 +207,7 @@ function Index() {
           <div className="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-5 pb-14">
             <p className="text-sm tracking-[0.4em] text-cream/90">TAIPEI CAT CAFE</p>
             <h1 className="mt-4 max-w-3xl font-display text-3xl leading-snug font-bold text-cream md:text-5xl md:leading-tight">
-              歡迎來到「貓癒所」，
+              歡迎你來到「貓癒所」，
               <br />
               一個讓你被貓咪療癒的溫暖角落
             </h1>
