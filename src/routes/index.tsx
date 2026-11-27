@@ -12,7 +12,7 @@ import {
 import heroImg from "@/assets/hero.jpg";
 import catLatte from "@/assets/cat-latte.jpg";
 import catPudding from "@/assets/cat-pudding.jpg";
-import catMochi from "@/assets/cat-mochi.jpg";
+import catMochiAsset from "@/assets/cat-mochi.jpg.asset.json";
 import menuImg from "@/assets/menu.jpg";
 
 export const Route = createFileRoute("/")({
@@ -51,7 +51,7 @@ const cats = [
   },
   {
     name: "麻糬",
-    img: catMochi,
+    img: catMochiAsset.url,
     tag: "慵懶睡神",
     desc: "全店最會睡的麻糬，最愛窩在陽光灑進來的窗邊軟墊上。走路慢慢的，但只要聽到零食袋聲音就會秒醒。",
   },
